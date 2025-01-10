@@ -1,0 +1,7 @@
+.gadget/
+node_modules/
+**/.DS_Store
+.env
+.env.development
+.shopify/
+extensions/*/dist

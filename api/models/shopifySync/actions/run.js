@@ -1,0 +1,21 @@
+import { applyParams, save, ActionOptions } from "gadget-server";
+import { preventCrossShopDataAccess, shopifySync } from "gadget-server/shopify";
+
+/** @type { ActionRun } */
+export const run = async ({ params, record, logger, api, connections }) => {
+  applyParams(params, record);
+  await preventCrossShopDataAccess(params, record);
+  await save(record);
+  await shopifySync(params, record);
+};
+
+/** @type { ActionOnSuccess } */
+export const onSuccess = async ({ params, record, logger, api, connections }) => {
+  // Your logic goes here
+};
+
+/** @type { ActionOptions } */
+export const options = {
+  actionType: "create",
+  triggers: { api: true },
+};
