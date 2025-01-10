@@ -8,6 +8,9 @@ const route = async ({ request, reply, api, logger, connections }) => {
 };
 
 async function _routeHandler({ request, api, logger, connections }) {
+  let properties = request.body.properties;
+  logger.info({ request, properties }, "POST from flow action");
+  
   return { success: true };
 }
 

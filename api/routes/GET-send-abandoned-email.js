@@ -8,7 +8,7 @@ const route = async ({ request, reply, api, logger, connections }) => {
 };
 
 async function _routeHandler({ request, api, logger, connections }) {
-  return { success: true };
+  return { message: "You must POST to this url, young grasshopper", success: true };
 }
 
 export default route;

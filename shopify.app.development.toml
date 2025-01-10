@@ -16,3 +16,6 @@ redirect_urls = [
 
 [pos]
 embedded = false
+
+[build]
+dev_store_url = "kalen-test-store.myshopify.com"
