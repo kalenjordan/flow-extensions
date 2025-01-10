@@ -1,0 +1,20 @@
+[[extensions]]
+name = "Send Abandoned Email"
+handle = "send-abandoned-email"
+type = "flow_action"
+
+description = "Send an event to Klaviyo to trigger a Klaviyo abandoned cart email flow"
+runtime_url = "https://url.com/api/execute"
+
+[settings]
+
+  [[settings.fields]]
+  type = "customer_reference"
+  required = true
+
+  [[settings.fields]]
+  type = "single_line_text_field"
+  key = "your-field-key"
+  name = "Display name"
+  description = "A description of my field"
+  required = true
