@@ -16,15 +16,21 @@ async function _routeHandler({ request, api, connections }) {
   log.info({ request, properties }, "POST from flow action");
 
   let shopId = postData.shop_id;
-  // Find the shop using the shopId
-  const shop = await api.shopifyShop.findMany({ where: { id: shopId } });
-  log.info({ shop }, "Shopify Shop");
+  let shop = (await api.shopifyShop.findMany({ where: { id: shopId } }))?.[0];
+  if (!shop) {
+    throw new Error("Shop not found for id: " + shopId);
+  }
+
+  log.info("Klaviyo api key", shop.klaviyoApiKey);
+  log.info({ shop, klaviyoApiKey: shop.klaviyoApiKey }, "Shopify Shop");
 
   const shopify = await connections.shopify.forShopId(shopId);
   let customer = await fetchCustomer(shopify, properties.customer_id);
   log.info({ customer }, "Shopify Customer");
 
-  await postToKlaviyo(customer);
+  let result = await postToKlaviyo(shop.klaviyoApiKey, customer);
+
+  return result;
 }
 
 async function fetchCustomer(shopify, customerId) {
@@ -41,66 +47,61 @@ async function fetchCustomer(shopify, customerId) {
   `;
 
   let response = await shopify.graphql(query);
-  return response;
+  return response.customer;
 }
 
-async function postToKlaviyo(postData) {
-  const klaviyoEndpoint = 'https://a.klaviyo.com/api/events';
-  const apiKey = 'YOUR_KLAVIYO_API_KEY'; // Replace with your actual API key
+async function postToKlaviyo(klaviyoApiKey, customer) {
+  const klaviyoEndpoint = "https://a.klaviyo.com/api/events";
 
-  // Construct the event data
-  const data = {
-    type: 'event',
-    attributes: {
-      properties: {
-        newKey: "New Value" // Replace with actual properties
-      },
-      metric: {
-        data: {
-          type: "metric"
-        }
-      },
-      profile: {
-        data: {
-          type: "profile",
-          email: properties.email,
-          attributes: {
-            properties: {
-              newKey: "New Value" // Replace with actual properties
+  let klaviyoPayload = {
+    BADdata: {
+      type: "event",
+      attributes: {
+        properties: {
+          email: customer.email,
+        },
+        metric: {
+          data: {
+            type: "metric",
+            attributes: {
+              name: "Checkout Links Shopify Flow Abandoned Cart",
             },
-            meta: {
-              patch_properties: {
-                append: {
-                  newKey: "New Value" // Replace with actual properties
-                },
-                unappend: {
-                  newKey: "New Value" // Replace with actual properties
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+          },
+        },
+        profile: {
+          data: {
+            type: "profile",
+            attributes: {
+              email: customer.email,
+            },
+          },
+        },
+      },
+    },
   };
 
   // Define the options for the fetch request
   const options = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      accept: 'application/vnd.api+json',
-      revision: '2025-01-15',
-      'content-type': 'application/vnd.api+json',
-      Authorization: `Klaviyo-API-Key ${apiKey}` // Use the API key variable
+      accept: "application/vnd.api+json",
+      revision: "2025-01-15",
+      "content-type": "application/vnd.api+json",
+      Authorization: `Klaviyo-API-Key ${klaviyoApiKey}`, // Use the API key variable
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(klaviyoPayload),
   };
 
-  // Post the event to Klaviyo using fetch with the new options
-  const response = await fetch(klaviyoEndpoint, options);
+  let response = await fetch(klaviyoEndpoint, options);
+  try {
+    response = await response.json();
+  } catch (error) {
+    // Usually when it doesn't return json that means it succeeded - weird.
+  }
 
-  const responseData = await response.json();
-  logger.info({ response: responseData }, "Klaviyo API response");
+  if (response.errors) {
+    throw new Error("Klaviyo API error: " + response.errors[0].detail);
+  }
 
   return { success: true };
 }
