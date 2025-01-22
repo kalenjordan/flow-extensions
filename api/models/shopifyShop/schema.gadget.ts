@@ -6,7 +6,9 @@ import type { GadgetModel } from "gadget-server";
 export const schema: GadgetModel = {
   type: "gadget/model-schema/v1",
   storageKey: "DataModel-Shopify-Shop",
-  fields: {},
+  fields: {
+    klaviyoApiKey: { type: "string", storageKey: "kzn5lQVyupjn" },
+  },
   shopify: {
     fields: [
       "address1",

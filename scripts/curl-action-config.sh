@@ -1,8 +1,7 @@
 #!/bin/bash
 
 curl -X POST \
-  'https://flow-extensions--development.gadget.app/api/send-abandoned-email' \
-  -H 'Content-Type: application/json' \
+  'https://flow-extensions--development.gadget.app/action' \
   -d '{
     "email": "test@example.com",
     "firstName": "Test",

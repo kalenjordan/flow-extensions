@@ -1,0 +1,20 @@
+[[extensions]]
+name = "Send Abandoned Email (With Custom UI)"
+handle = "send-abandoned-email-custom-ui"
+type = "flow_action"
+
+description = "Send an event to Klaviyo to trigger a Klaviyo abandoned cart email flow"
+runtime_url = "https://flow-extensions--development.gadget.app/send-abandoned-email"
+
+[settings]
+
+  [[settings.fields]]
+  type = "customer_reference"
+  required = true
+
+[[settings.fields]]
+  type = "single_line_text_field"
+  key = "checkout_links_template"
+  name = "Checkout Links Template"
+  description = "The template for the checkout links to be sent to Klaviyo"
+  required = true
