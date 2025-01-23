@@ -13,7 +13,9 @@ const route = async ({ request, reply, api, logger, connections }) => {
 async function _routeHandler({ request, api, connections }) {
   let postData = request.body;
   let properties = postData.properties;
-  log.info({ request, properties }, "POST from flow action");
+  let checkoutLinksTemplate = properties.checkout_links_template;
+
+  log.info({ request, properties }, "Klaviyo - POST from flow action");
 
   let shopId = postData.shop_id;
   let shop = (await api.shopifyShop.findMany({ where: { id: shopId } }))?.[0];
@@ -21,20 +23,18 @@ async function _routeHandler({ request, api, connections }) {
     throw new Error("Shop not found for id: " + shopId);
   }
 
-  log.info("Klaviyo api key", shop.klaviyoApiKey);
-  log.info({ shop, klaviyoApiKey: shop.klaviyoApiKey }, "Shopify Shop");
+  //log.info({ shop, klaviyoApiKey: shop.klaviyoApiKey }, "Shopify Shop");
 
   const shopify = await connections.shopify.forShopId(shopId);
   let customer = await fetchCustomer(shopify, properties.customer_id);
-  log.info({ customer }, "Shopify Customer");
+  log.info({ customer }, "Klaviyo - Shopify Customer: " + customer.email);
 
-  let result = await postToKlaviyo(shop.klaviyoApiKey, customer);
+  let result = await postToKlaviyo(shop.klaviyoApiKey, customer, checkoutLinksTemplate);
 
   return result;
 }
 
 async function fetchCustomer(shopify, customerId) {
-  log.info({ customerId }, "Customer ID");
   let query = `#graphql
     {
       customer(id: "${customerId}") {
@@ -50,15 +50,16 @@ async function fetchCustomer(shopify, customerId) {
   return response.customer;
 }
 
-async function postToKlaviyo(klaviyoApiKey, customer) {
+async function postToKlaviyo(klaviyoApiKey, customer, checkoutLinksTemplate) {
   const klaviyoEndpoint = "https://a.klaviyo.com/api/events";
 
   let klaviyoPayload = {
-    BADdata: {
+    data: {
       type: "event",
       attributes: {
         properties: {
           email: customer.email,
+          checkout_links_template: checkoutLinksTemplate,
         },
         metric: {
           data: {
@@ -103,6 +104,7 @@ async function postToKlaviyo(klaviyoApiKey, customer) {
     throw new Error("Klaviyo API error: " + response.errors[0].detail);
   }
 
+  log.info("Klaviyo - API response looks good - no json response with errors");
   return { success: true };
 }
 
