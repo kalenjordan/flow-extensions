@@ -9,7 +9,7 @@ runtime_url = "https://flow-extensions--development.gadget.app/send-abandoned-em
 [settings]
 
   [[settings.fields]]
-  type = "customer_reference"
+  type = "abandonment_reference"
   required = true
 
 [[settings.fields]]

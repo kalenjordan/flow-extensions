@@ -9,7 +9,11 @@ export const settings: GadgetSettings = {
         apiVersion: "2024-10",
         enabledModels: [],
         type: "partner",
-        scopes: ["read_customers", "write_customers"],
+        scopes: [
+          "read_customers",
+          "write_customers",
+          "read_products",
+        ],
       },
     },
   },

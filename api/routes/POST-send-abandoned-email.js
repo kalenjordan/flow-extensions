@@ -23,13 +23,14 @@ async function _routeHandler({ request, api, connections }) {
     throw new Error("Shop not found for id: " + shopId);
   }
 
-  //log.info({ shop, klaviyoApiKey: shop.klaviyoApiKey }, "Shopify Shop");
-
   const shopify = await connections.shopify.forShopId(shopId);
-  let customer = await fetchCustomer(shopify, properties.customer_id);
-  log.info({ customer }, "Klaviyo - Shopify Customer: " + customer.email);
+  let abandonment = await fetchAbandonment(shopify, properties.abandonment_id);
+  log.info({ abandonment }, "Klaviyo - Shopify Abandonment: " + abandonment.id);
+  if (!abandonment?.customer?.email) {
+    throw new Error("No email found for abandonment: " + abandonment.id);
+  }
 
-  let result = await postToKlaviyo(shop.klaviyoApiKey, customer, checkoutLinksTemplate);
+  let result = await postToKlaviyo(shop.klaviyoApiKey, abandonment, checkoutLinksTemplate);
 
   return result;
 }
@@ -50,7 +51,54 @@ async function fetchCustomer(shopify, customerId) {
   return response.customer;
 }
 
-async function postToKlaviyo(klaviyoApiKey, customer, checkoutLinksTemplate) {
+async function fetchAbandonment(shopify, abandonmentId) {
+  let query = `#graphql
+    {
+      abandonment(id: "${abandonmentId}") {
+        id
+        customer {
+          email
+          firstName
+          lastName
+        }
+        productsAddedToCart(first:20) {
+          nodes {
+            product {
+              title
+              vendor
+              media(first:10) {
+                nodes {
+                  id
+                  ... on MediaImage {
+                    originalSource {
+                      fileSize
+                      url
+                    }
+                  }
+                }
+              }
+            }
+            variant {
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  let response = await shopify.graphql(query);
+  if (!response?.abandonment?.id) {
+    throw new Error("Abandonment not found for id: " + abandonmentId);
+  }
+
+  return response.abandonment;
+}
+
+async function postToKlaviyo(klaviyoApiKey, abandonment, checkoutLinksTemplate) {
   const klaviyoEndpoint = "https://a.klaviyo.com/api/events";
 
   let klaviyoPayload = {
@@ -58,7 +106,7 @@ async function postToKlaviyo(klaviyoApiKey, customer, checkoutLinksTemplate) {
       type: "event",
       attributes: {
         properties: {
-          email: customer.email,
+          abandonment: abandonment,
           checkout_links_template: checkoutLinksTemplate,
         },
         metric: {
@@ -73,7 +121,7 @@ async function postToKlaviyo(klaviyoApiKey, customer, checkoutLinksTemplate) {
           data: {
             type: "profile",
             attributes: {
-              email: customer.email,
+              email: abandonment.customer.email,
             },
           },
         },
@@ -93,6 +141,7 @@ async function postToKlaviyo(klaviyoApiKey, customer, checkoutLinksTemplate) {
     body: JSON.stringify(klaviyoPayload),
   };
 
+  log.info({ klaviyoPayload }, "Klaviyo - POST to Klaviyo endpoint: " + klaviyoEndpoint);
   let response = await fetch(klaviyoEndpoint, options);
   try {
     response = await response.json();
