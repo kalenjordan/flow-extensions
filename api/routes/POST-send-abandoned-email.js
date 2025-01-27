@@ -54,34 +54,45 @@ async function fetchCustomer(shopify, customerId) {
 async function fetchAbandonment(shopify, abandonmentId) {
   let query = `#graphql
     {
-      abandonment(id: "${abandonmentId}") {
-        id
-        customer {
-          email
-          firstName
-          lastName
-        }
-        productsAddedToCart(first:20) {
-          nodes {
-            product {
-              title
-              vendor
-              media(first:10) {
-                nodes {
-                  id
-                  ... on MediaImage {
-                    originalSource {
-                      fileSize
-                      url
-                    }
+      id
+      customer {
+        email
+      }
+      productsAddedToCart(first: 20) {
+        nodes {
+          product {
+            productType
+            vendor
+            tags
+            title
+            media(first: 10) {
+              nodes {
+                id
+                ... on MediaImage {
+                  originalSource {
+                    fileSize
+                    url
                   }
                 }
               }
             }
-            variant {
-              selectedOptions {
-                name
-                value
+          }
+          variant {
+            sku
+            title
+            selectedOptions {
+              name
+              value
+            }
+            media(first: 10) {
+              nodes {
+                id
+                ... on MediaImage {
+                  originalSource {
+                    fileSize
+                    url
+                  }
+                }
               }
             }
           }

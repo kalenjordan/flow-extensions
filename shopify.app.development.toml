@@ -19,3 +19,4 @@ embedded = false
 
 [build]
 dev_store_url = "kalen-test-store.myshopify.com"
+include_config_on_deploy = true
