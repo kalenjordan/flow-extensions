@@ -32,8 +32,7 @@ const FETCH_ABANDONMENT_QUERY = `#graphql
               nodes {
                 id
                 ... on MediaImage {
-                  originalSource {
-                    fileSize
+                  image {
                     url
                   }
                 }
@@ -52,8 +51,7 @@ const FETCH_ABANDONMENT_QUERY = `#graphql
               nodes {
                 id
                 ... on MediaImage {
-                  originalSource {
-                    fileSize
+                  image {
                     url
                   }
                 }

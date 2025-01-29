@@ -62,12 +62,16 @@ function mapAbandonmentToKlaviyoProperties(abandonment, checkoutLinksTemplate) {
           title: node.product.title,
           tags: node.product.tags,
           body_html: node.product.body_html,
-          images: node.product.images,
+          images: node.product.media.nodes.map((media) => ({
+            src: media.image.url
+          })),
           variant: {
             sku: node.variant?.sku || "",
             title: node.variant?.title || "",
             options: node.variant?.selectedOptions || [],
-            images: node.variant?.images || [],
+            images: node.variant?.media.nodes.map((media) => ({
+              src: media.image.url
+            }))
           },
         },
       })),
