@@ -4,6 +4,7 @@ const FETCH_ABANDONMENT_QUERY = `#graphql
       id
       abandonedCheckoutPayload {
         discountCodes
+        abandonedCheckoutUrl
         totalDiscountSet {
           presentmentMoney {
             amount

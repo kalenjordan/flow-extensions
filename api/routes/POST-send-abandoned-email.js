@@ -49,7 +49,7 @@ function mapAbandonmentToKlaviyoProperties(abandonment, checkoutLinksTemplate) {
     "Discount Codes": abandonment.abandonedCheckoutPayload.discountCodes,
     "Total Discounts": abandonment.abandonedCheckoutPayload.totalDiscountSet?.shopMoney?.amount || 0.00,
     extra: {
-      checkout_url: abandonment.abandonedCheckoutPayload.checkoutUrl,
+      checkout_url: abandonment.abandonedCheckoutPayload.abandonedCheckoutUrl,
       presentment_currency: abandonment.abandonedCheckoutPayload.totalPriceSet.presentmentMoney.currencyCode,
       note_attributes: [],
       line_items: abandonment.productsAddedToCart.nodes.map((node) => ({
