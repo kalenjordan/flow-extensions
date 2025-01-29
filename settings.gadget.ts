@@ -13,6 +13,7 @@ export const settings: GadgetSettings = {
           "read_customers",
           "write_customers",
           "read_products",
+          "read_orders",
         ],
       },
     },

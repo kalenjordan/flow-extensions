@@ -7,6 +7,6 @@ curl -X POST \
     "shop_id": 52529004730,
     "properties": {
       "checkout_links_template": "12345",
-      "customer_id": "gid://shopify/Customer/7085965639866"
+      "abandonment_id": "gid://shopify/Abandonment/2272268746938"
     }
   }'

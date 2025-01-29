@@ -1,0 +1,99 @@
+{
+  "$value": 150,
+  "Items": ["Horse Show Banner"],
+  "Collections": ["Home page", "New Arrivals", "Recommended products (Seguno)"],
+  "Item Count": 1,
+  "Customer Locale": "en-US",
+  "Discount Codes": [],
+  "Total Discounts": "0.00",
+  "extra": {
+    "full_landing_site": "http://kalen-test-store.myshopify.com/password",
+    "responsive_checkout_url": "https://kalen-test-store.myshopify.com/52529004730/checkouts/ac/Z2NwLXVzLWNlbnRyYWwxOjAxSkg4V1JXQkNCRFBIRDc4QVJBNEZXMVpE/recover?key=5c186881e21ffd3958f4092146e7f11a&locale=en-US",
+    "checkout_url": "https://kalen-test-store.myshopify.com/52529004730/checkouts/ac/Z2NwLXVzLWNlbnRyYWwxOjAxSkg4V1JXQkNCRFBIRDc4QVJBNEZXMVpE/recover?key=5c186881e21ffd3958f4092146e7f11a&locale=en-US",
+    "presentment_currency": "USD",
+    "note_attributes": [],
+    "line_items": [
+      {
+        "fulfillment_service": "manual",
+        "gift_card": false,
+        "grams": 0,
+        "presentment_title": "Horse Show Banner",
+        "presentment_variant_title": "",
+        "product_id": 7864055103674,
+        "quantity": 1,
+        "requires_shipping": true,
+        "sku": "horse-banner",
+        "tax_lines": [],
+        "taxable": true,
+        "title": "Horse Show Banner",
+        "variant_id": 43841771307194,
+        "variant_title": "",
+        "variant_price": "150.00",
+        "vendor": "Kalen Test Store",
+        "unit_price_measurement": {
+          "measured_type": null,
+          "quantity_value": null,
+          "quantity_unit": null,
+          "reference_value": null,
+          "reference_unit": null
+        },
+        "compare_at_price": null,
+        "line_price": 150,
+        "price": 150,
+        "applied_discounts": [],
+        "destination_location_id": null,
+        "user_id": null,
+        "rank": null,
+        "origin_location_id": null,
+        "properties": {},
+        "line_price_set": {
+          "presentment_money": {
+            "amount": 0
+          },
+          "shop_money": {
+            "amount": 0
+          }
+        },
+        "product": {
+          "id": 7864055103674,
+          "title": "Horse Show Banner",
+          "handle": "horse-show-banner",
+          "vendor": "Kalen Test Store",
+          "tags": "new",
+          "body_html": "Horse Show Banner Tags: new Highlight 1: Customizable Design ",
+          "product_type": "",
+          "properties": {},
+          "images": [
+            {
+              "src": "https://cdn.shopify.com/s/files/1/0525/2900/4730/files/Screenshot2024-06-19at7.58.46AM.png?v=1718801933",
+              "thumb_src": "https://cdn.shopify.com/s/files/1/0525/2900/4730/files/Screenshot2024-06-19at7.58.46AM_x240.png?v=1718801933",
+              "alt": null,
+              "width": 1318,
+              "height": 1330,
+              "position": 1,
+              "variant_ids": [],
+              "id": 34959311175866,
+              "created_at": "2024-06-19T07:58:51-05:00",
+              "updated_at": "2024-06-19T07:58:55-05:00"
+            }
+          ],
+          "variant": {
+            "id": 43841771307194,
+            "sku": "horse-banner",
+            "title": "Default Title",
+            "options": {
+              "Title": "Default Title"
+            },
+            "images": [],
+            "translations": {
+              "presentment_variant_title": ""
+            },
+            "variant_options": {
+              "Title": "Default Title"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

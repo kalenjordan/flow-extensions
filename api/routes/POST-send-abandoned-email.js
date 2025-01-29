@@ -1,3 +1,5 @@
+import FETCH_ABANDONMENT_QUERY from "../queries/fetchAbandonment.js";
+
 let log = null;
 
 const route = async ({ request, reply, api, logger, connections }) => {
@@ -30,80 +32,53 @@ async function _routeHandler({ request, api, connections }) {
     throw new Error("No email found for abandonment: " + abandonment.id);
   }
 
-  let result = await postToKlaviyo(shop.klaviyoApiKey, abandonment, checkoutLinksTemplate);
+  let email = abandonment.customer.email;
+  let klaviyoProperties = mapAbandonmentToKlaviyoProperties(abandonment, checkoutLinksTemplate);
+  let result = await postToKlaviyo(shop.klaviyoApiKey, klaviyoProperties, email);
 
   return result;
 }
 
-async function fetchCustomer(shopify, customerId) {
-  let query = `#graphql
-    {
-      customer(id: "${customerId}") {
-        id
-        email
-        firstName
-        lastName
-      }
-    }
-  `;
+function mapAbandonmentToKlaviyoProperties(abandonment, checkoutLinksTemplate) {
+  let payload = {
+    checkout_links_template: checkoutLinksTemplate,
+    $value: abandonment.abandonedCheckoutPayload.totalPriceSet?.presentmentMoney?.amount || 0.00,
+    Items: abandonment.productsAddedToCart.nodes.map((node) => node.product.title),
+    "Item Count": abandonment.productsAddedToCart.nodes.length,
+    "Customer Locale": abandonment.customer?.locale || "en-US",
+    "Discount Codes": abandonment.abandonedCheckoutPayload.discountCodes,
+    "Total Discounts": abandonment.abandonedCheckoutPayload.totalDiscountSet?.shopMoney?.amount || 0.00,
+    extra: {
+      checkout_url: abandonment.abandonedCheckoutPayload.checkoutUrl,
+      presentment_currency: abandonment.abandonedCheckoutPayload.totalPriceSet.presentmentMoney.currencyCode,
+      note_attributes: [],
+      line_items: abandonment.productsAddedToCart.nodes.map((node) => ({
+        quantity: node.quantity,
+        sku: node.variant?.sku || "",
+        title: node.product.title,
+        line_price: node.variant?.price || 0.00,
+        price: node.variant?.price || 0.00,
+        product: {
+          title: node.product.title,
+          tags: node.product.tags,
+          body_html: node.product.body_html,
+          images: node.product.images,
+          variant: {
+            sku: node.variant?.sku || "",
+            title: node.variant?.title || "",
+            options: node.variant?.selectedOptions || [],
+            images: node.variant?.images || [],
+          },
+        },
+      })),
+    },
+  };
 
-  let response = await shopify.graphql(query);
-  return response.customer;
+  return payload;
 }
 
 async function fetchAbandonment(shopify, abandonmentId) {
-  let query = `#graphql
-    {
-      abandonment(id: "${abandonmentId}") {
-        id
-        customer {
-          email
-          firstName
-          lastName
-        }
-        productsAddedToCart(first: 20) {
-          nodes {
-            product {
-              productType
-              vendor
-              tags
-              title
-              media(first: 10) {
-                nodes {
-                  id
-                  ... on MediaImage {
-                    originalSource {
-                      fileSize
-                      url
-                    }
-                  }
-                }
-              }
-            }
-            variant {
-              sku
-              title
-              selectedOptions {
-                name
-                value
-              }
-              media(first: 10) {
-                nodes {
-                  id
-                  ... on MediaImage {
-                    originalSource {
-                      fileSize
-                      url
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
+  let query = FETCH_ABANDONMENT_QUERY.replace("$abandonmentId", abandonmentId);
 
   let response = await shopify.graphql(query);
   if (!response?.abandonment?.id) {
@@ -113,17 +88,14 @@ async function fetchAbandonment(shopify, abandonmentId) {
   return response.abandonment;
 }
 
-async function postToKlaviyo(klaviyoApiKey, abandonment, checkoutLinksTemplate) {
+async function postToKlaviyo(klaviyoApiKey, klaviyoProperties, email) {
   const klaviyoEndpoint = "https://a.klaviyo.com/api/events";
 
   let klaviyoPayload = {
     data: {
       type: "event",
       attributes: {
-        properties: {
-          abandonment: abandonment,
-          checkout_links_template: checkoutLinksTemplate,
-        },
+        properties: klaviyoProperties,
         metric: {
           data: {
             type: "metric",
@@ -136,7 +108,7 @@ async function postToKlaviyo(klaviyoApiKey, abandonment, checkoutLinksTemplate) 
           data: {
             type: "profile",
             attributes: {
-              email: abandonment.customer.email,
+              email: email,
             },
           },
         },
@@ -156,7 +128,7 @@ async function postToKlaviyo(klaviyoApiKey, abandonment, checkoutLinksTemplate) 
     body: JSON.stringify(klaviyoPayload),
   };
 
-  log.info({ klaviyoPayload }, "Klaviyo - POST to Klaviyo endpoint: " + klaviyoEndpoint);
+  log.info({ klaviyoProperties, klaviyoPayload }, "Klaviyo - POST to Klaviyo endpoint: " + klaviyoEndpoint);
   let response = await fetch(klaviyoEndpoint, options);
   try {
     response = await response.json();
