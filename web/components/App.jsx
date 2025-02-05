@@ -18,6 +18,7 @@ import {
 } from "react-router";
 import { api } from "../api";
 import AboutPage from "../routes/about";
+import CustomFlowActionIndex from "../routes/customFlowAction";
 import Index from "../routes/index";
 import "./App.css";
 
@@ -39,11 +40,21 @@ function Error404() {
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
+      <>
+      {/* Main Layout Routes */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Index />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="*" element={<Error404 />} />
       </Route>
+
+      {/* Custom Flow Action Layout Routes */}
+      <Route path="/custom-flow-action" element={<CustomFlowActionLayout />}>
+        <Route index element={<CustomFlowActionIndex />} />
+      </Route>
+
+      {/* 404 Route */}
+      <Route path="*" element={<Error404 />} />
+    </>
     )
   );
 
@@ -55,6 +66,18 @@ function App() {
 }
 
 function Layout() {
+  return (
+    <GadgetProvider
+      type={AppType.Embedded}
+      shopifyApiKey={window.gadgetConfig.apiKeys.shopify}
+      api={api}
+    >
+      <AuthenticatedApp />
+    </GadgetProvider>
+  );
+}
+
+function CustomFlowActionLayout() {
   return (
     <GadgetProvider
       type={AppType.Embedded}

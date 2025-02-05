@@ -7,7 +7,7 @@ description = "Send an event to Klaviyo to trigger a Klaviyo abandoned cart emai
 runtime_url = "https://flow-extensions--development.gadget.app/send-abandoned-email"
 validation_url = "https://flow-extensions--development.gadget.app/custom-ui-validation"
 config_page_preview_url = "https://flow-extensions--development.gadget.app/custom-ui-preview"
-config_page_url = "https://flow-extensions--development.gadget.app/"
+config_page_url = "https://flow-extensions--development.gadget.app/custom-flow-action"
 
 [settings]
 
