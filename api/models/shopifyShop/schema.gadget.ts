@@ -8,6 +8,7 @@ export const schema: GadgetModel = {
   storageKey: "DataModel-Shopify-Shop",
   fields: {
     klaviyoApiKey: { type: "string", storageKey: "kzn5lQVyupjn" },
+    webhookKey: { type: "string", storageKey: "zIwxmumYkW13" },
   },
   shopify: {
     fields: [

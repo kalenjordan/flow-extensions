@@ -1,0 +1,12 @@
+[[extensions]]
+name = "Webhook Trigger"
+handle = "webhook-trigger"
+type = "flow_trigger"
+
+description = "Trigger a flow action via a webhook"
+
+[settings]
+
+  [[settings.fields]]
+  type = "single_line_text_field"
+  key = "payloadJsonString"
