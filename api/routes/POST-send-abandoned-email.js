@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import FETCH_ABANDONMENT_QUERY from "../queries/fetchAbandonment.js";
 
 let log = null;
@@ -16,8 +17,10 @@ async function _routeHandler({ request, api, connections }) {
   let postData = request.body;
   let properties = postData.properties;
   let checkoutLinksTemplate = properties.checkout_links_template;
-
   log.info({ request, properties }, "Klaviyo - POST from flow action");
+  log.info({ headers: request.headers }, "Klaviyo - Request Headers");
+
+  validateSignature(request);
 
   let shopId = postData.shop_id;
   let shop = (await api.shopifyShop.findMany({ where: { id: shopId } }))?.[0];
@@ -84,6 +87,8 @@ function mapAbandonmentToKlaviyoProperties(abandonment, checkoutLinksTemplate) {
 async function fetchAbandonment(shopify, abandonmentId) {
   let query = FETCH_ABANDONMENT_QUERY.replace("$abandonmentId", abandonmentId);
 
+  log.info({ query }, "Klaviyo - Fetch Abandonment Query");
+
   let response = await shopify.graphql(query);
   if (!response?.abandonment?.id) {
     throw new Error("Abandonment not found for id: " + abandonmentId);
@@ -146,6 +151,26 @@ async function postToKlaviyo(klaviyoApiKey, klaviyoProperties, email) {
 
   log.info("Klaviyo - API response looks good - no json response with errors");
   return { success: true };
+}
+
+function validateSignature(request) {
+  const secret = process.env.APP_SECRET_KEY;
+
+  const payload = request.body;
+
+  /* Validate the webhook */
+  const signature = request.headers['x-shopify-hmac-sha256'];
+  const generatedSignature = crypto.createHmac("SHA256", secret)
+    .update(request.rawBody)
+    .digest("base64");
+
+  log.info({ secret: secret, type: typeof payload, payload, rawBody: request.rawBody, signature: signature, generatedSignature: generatedSignature }, "validateSignature");
+
+  if (signature !== generatedSignature) {
+    throw new Error("Signature mismatch");
+  }
+
+  return true;
 }
 
 export default route;
