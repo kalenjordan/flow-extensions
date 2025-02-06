@@ -18,6 +18,11 @@ This is a Gadget app that demonstrates how to build and use Shopify Flow extensi
    - Example of a Flow action with a custom configuration interface
    - Demonstrates how to create more complex Flow actions with customizable settings
 
+## To Do
+
+1. Tie the webhook trigger into background jobs
+2. Get the custom configuration UI action working
+
 ## Getting Started
 
 1. Fork this repository
